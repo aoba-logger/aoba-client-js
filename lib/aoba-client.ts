@@ -3,11 +3,14 @@ import { HttpStore, LogStore } from "./http-store"
 interface ClientConfig {
   server: string;
   logInClient?: boolean;
+  store?: LogStore;
 }
 
 export interface LogMessage {
   level: LogLevel | string;
-  message: string;
+  /** 'api error', 'network error', etc */
+  type?: string;
+  message: any[];
 }
 
 function isLogMessage(message: LogMessage | string): message is LogMessage {
@@ -20,16 +23,22 @@ enum LogLevel {
   ERROR,
 }
 
-interface LogFormat {
+interface RenderFormat {
   color: string;
-}
-const formatter = (message: string, format?: LogFormat) => {
-  console.log(message)
+  method: Console['log'] | Console['warn'] | Console['error'];
 }
 
 export class AobaClient {
-  constructor (config: ClientConfig) {
-    if (window) {
+  constructor(config: ClientConfig) {
+    if (window && window.console) {
+      this.console.log = window.console.log
+      this.console.warn = window.console.warn
+      this.console.error = window.console.error
+
+      window.console.log = this.log
+      window.console.warn = this.warn
+      window.console.error = this.error
+
       window.addEventListener('error', (e) => {
       })
     }
@@ -37,37 +46,41 @@ export class AobaClient {
     this.store = new HttpStore(config)
   }
 
-  log (message: LogMessage | string) {
-    if (isLogMessage(message)) {
-      switch (message.level) {
-        case LogLevel.INFO:
-          this.info(message.message)
-          break;
-        case LogLevel.WARN:
-          this.warn(message.message)
-          break;
-        case LogLevel.ERROR:
-          this.error(message.message)
-          break;
-        default:
-          // TODO: need refactor
-          throw new Error(message.message)
-      }
-    } else {
-      this.info(message);
-    }
+  private console: {
+    log: Console['log'],
+    warn: Console['warn'],
+    error: Console['error']
   }
 
-  info (message: string) {
-    formatter(message)
+  private render(message: any[], format?: RenderFormat) {
+    const engine = format?.method ?? this.console.log
+    engine(...message)
   }
 
-  warn (message: string) {
-    formatter(message)
+  log(message: LogMessage) {
+    this.store.save(message)
+    this.render(message.message)
   }
 
-  error (message: string) {
-    formatter(message)
+  info(message: any[]) {
+    this.log({
+      level: LogLevel.INFO,
+      message
+    })
+  }
+
+  warn(message: any[]) {
+    this.log({
+      level: LogLevel.WARN,
+      message
+    })
+  }
+
+  error(message: any[]) {
+    this.log({
+      level: LogLevel.ERROR,
+      message
+    })
   }
 
   private store: LogStore
