@@ -1,0 +1,1 @@
+export { AobaClient } from './lib/aoba-client'
