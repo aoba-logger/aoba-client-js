@@ -35,10 +35,6 @@ export class AobaClient {
       this.console.warn = window.console.warn
       this.console.error = window.console.error
 
-      window.console.log = this.log
-      window.console.warn = this.warn
-      window.console.error = this.error
-
       window.addEventListener('error', (e) => {
       })
     }
@@ -58,25 +54,35 @@ export class AobaClient {
   }
 
   log(message: LogMessage) {
+    switch (message.level) {
+      case LogLevel.INFO:
+        break;
+      case LogLevel.WARN:
+        break;
+      case LogLevel.ERROR:
+        break;
+      default:
+        this.render(message.message)
+        break;
+    }
     this.store.save(message)
-    this.render(message.message)
   }
 
-  info(message: any[]) {
+  info(...message: any[]) {
     this.log({
       level: LogLevel.INFO,
       message
     })
   }
 
-  warn(message: any[]) {
+  warn(...message: any[]) {
     this.log({
       level: LogLevel.WARN,
       message
     })
   }
 
-  error(message: any[]) {
+  error(...message: any[]) {
     this.log({
       level: LogLevel.ERROR,
       message
