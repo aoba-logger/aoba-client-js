@@ -1,5 +1,15 @@
 {
   "main": "dist/index.js",
+  "name": "@aoba-logger/aoba-client",
+  "version": "0.1.0",
+  "author": {
+    "name": "Yukihiratype2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:aoba-logger/aoba-client-js.git"
+  },
+  "license": "MIT",
   "scripts": {
     "build": "rollup --config",
     "test": "jest",
