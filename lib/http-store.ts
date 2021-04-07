@@ -14,7 +14,10 @@ interface HttpStoreConfig {
 
 export class HttpStore implements LogStore {
   async save (message: LogMessage) {
-    await this.request.put('/log', message)
+    await this.request.put('/log', {
+      ...message,
+      message: JSON.stringify(message.message)
+    })
   }
 
   private request: AxiosInstance;

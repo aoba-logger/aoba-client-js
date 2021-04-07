@@ -7,5 +7,5 @@ export default {
     dir: 'dist',
     format: 'cjs'
   }],
-  plugins: [typescript(), dts()],
+  plugins: [typescript()],
 }

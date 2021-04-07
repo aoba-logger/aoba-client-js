@@ -7,6 +7,18 @@ describe("Test", function () {
   it("should load Aoba Client", async function () {
     expect(new AobaClient({ server: ''})).toBeTruthy()
   })
+  it("should call store.save", function () {
+    const saveHandler = jest.fn()
+    const aoba = new AobaClient({
+      server: '',
+      store: { 
+        save: saveHandler
+      }
+    })
+    aoba.info('kksk')
+    expect(saveHandler.mock.calls.length).toBe(1)
+    expect(saveHandler.mock.calls[0][0]).toBeTruthy()
+  })
   it("shoud call console.log", function () {
     window.console.log = jest.fn()
     const message = 'kksk'

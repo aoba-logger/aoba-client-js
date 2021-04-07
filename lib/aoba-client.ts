@@ -31,15 +31,14 @@ interface RenderFormat {
 export class AobaClient {
   constructor(config: ClientConfig) {
     if (window && window.console) {
-      this.console.log = window.console.log
-      this.console.warn = window.console.warn
-      this.console.error = window.console.error
+      this.console = window.console
 
       window.addEventListener('error', (e) => {
+        this.error(e)
       })
     }
 
-    this.store = new HttpStore(config)
+    this.store = config.store ?? new HttpStore(config)
   }
 
   private console: {
@@ -54,12 +53,21 @@ export class AobaClient {
   }
 
   log(message: LogMessage) {
+    const format = {
+      color: 'cyan',
+      method: this.console.log
+    }
     switch (message.level) {
       case LogLevel.INFO:
+        this.render(message.message, format)
         break;
       case LogLevel.WARN:
+        format.method = this.console.warn
+        this.render(message.message, format)
         break;
       case LogLevel.ERROR:
+        format.method = this.console.error
+        this.render(message.message, format)
         break;
       default:
         this.render(message.message)
